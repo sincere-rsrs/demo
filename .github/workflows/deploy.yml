@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - main
+      
+  workflow_dispatch:
 
 # 允許此工作流程寫入 GitHub Pages 的權限
 permissions:

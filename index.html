@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>客家幣 1000 元 - 第二波補領線上登記系統</title>
+    <!-- 引入官方網站使用的字體，提升真實感 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        /* 模仿官方網站的顏色和字體 */
+        :root {
+            --primary-bg: #f8f9fa; /* 官方背景色 */
+            --card-bg: #ffffff;
+            --primary-text: #334155;
+            --primary-blue: #2d3a88; /* 官方標題藍色 */
+            --button-blue: #4057db; /* 官方按鈕藍色 */
+            --button-hover: #3548b8;
+            --border-color: #e2e8f0;
+            --focus-border: #4057db;
+            --alert-bg: #fffbe6;
+            --alert-border: #ffe58f;
+            --alert-text: #ad8a01;
+            --success-color: #28a745;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans TC', 'Helvetica Neue', Arial, '微軟正黑體', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--primary-text);
+            line-height: 1.7;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            margin: 40px 20px;
+            padding: 40px;
+            background-color: var(--card-bg);
+            border-radius: 16px; /* 更大的圓角以模仿官方卡片 */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            box-sizing: border-box;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header img {
+            height: 45px; /* 調整 Logo 大小以符合官方頁首 */
+        }
+
+        .header h1 {
+            font-family: 'Noto Serif TC', serif;
+            color: var(--primary-blue);
+            font-size: 28px;
+            font-weight: 900;
+            margin: 15px 0 5px 0;
+        }
+
+        .header h2 {
+            font-family: 'Noto Sans TC', sans-serif;
+            font-size: 18px;
+            color: var(--primary-text);
+            font-weight: 500;
+        }
+
+        .alert {
+            background-color: var(--alert-bg);
+            color: var(--alert-text);
+            border: 1px solid var(--alert-border);
+            padding: 15px 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 15px;
+        }
+
+        .intro-text {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #555;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 15px;
+            color: var(--primary-blue);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px; /* 圓角輸入框 */
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-group input::placeholder {
+            color: #a0aec0;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--focus-border);
+            box-shadow: 0 0 0 3px rgba(64, 87, 219, 0.2);
+        }
+
+        .submit-btn {
+            display: block;
+            width: 100%;
+            background-color: var(--button-blue);
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--button-hover);
+        }
+        
+        .submit-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 12px;
+            color: #a0aec0;
+        }
+        
+        /* 提交成功畫面的樣式 */
+        .success-message h2 {
+            color: var(--success-color);
+            font-family: 'Noto Serif TC', serif;
+        }
+        .success-icon {
+            color: var(--success-color);
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container" id="main-container">
+    <header class="header">
+        <!-- 直接引用官方 Logo 網址 -->
+        <img src="https://www.hakkacoin.com.tw/img/logo-hakka-affairs-council.webp" alt="客家委員會 Logo">
+        <h1>客家幣 1000 元</h1>
+        <h2>第二波補領線上登記系統</h2>
+    </header>
+
+    <div class="alert">
+        <strong>緊急通知：</strong>為保障您的權益，請務必於 <strong id="deadline"></strong> 前完成資料核對，逾期將喪失資格。
+    </div>
+
+    <p class="intro-text">
+        系統偵測到部分民眾因故未完成首次登記，經審核後特此開放補領通道。請填寫下列真實資料以利系統完成資格驗證與發放。
+    </p>
+
+    <!-- 這是您要收集資料的表單 -->
+    <form id="phishing-form">
+        <div class="form-group">
+            <label for="full-name">真實姓名</label>
+            <input type="text" id="full-name" name="fullName" placeholder="請輸入與身分證相符的姓名" required>
+        </div>
+        <div class="form-group">
+            <label for="phone-number">聯絡電話</label>
+            <input type="tel" id="phone-number" name="phoneNumber" placeholder="例如 0912345678" required>
+        </div>
+        <div class="form-group">
+            <label for="id-card">身分證字號</label>
+            <input type="text" id="id-card" name="idCard" placeholder="例如 A123456789" pattern="[A-Z]{1}[1-2]{1}[0-9]{8}" required>
+        </div>
+        <div class="form-group">
+            <label for="birth-date">出生年月日</label>
+            <input type="date" id="birth-date" name="birthDate" required>
+        </div>
+        <button type="submit" class="submit-btn" id="submit-button">立即提交，確認補領資格</button>
+    </form>
+
+    <footer class="footer">
+        © Copyright 2025 客家委員會. All Rights Reserved.
+    </footer>
+</div>
+
+<script>
+    // 您的 Web App 網址
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz3Xzz5S47h8BjSwpUoBsFOFtAPd6k23WMzgUPhodaX6utFQjLdLg0Gmai_qqyVQ7HJ/exec"; // <-- 請換成您自己的網址！
+
+    // 從釣魚連結的 URL 中取得員工編號
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('userId') || 'UnknownUser';
+
+    // 將 navigator.userAgent 進行編碼，以避免特殊字元問題
+    const userAgent = encodeURIComponent(navigator.userAgent);
+
+    // 1. 頁面載入時，記錄「連結點擊」事件
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch(`${SCRIPT_URL}?userId=${userId}&eventType=Link_Clicked&userAgent=${userAgent}`);
+    });
+
+    // 動態設定截止日期
+    document.getElementById('deadline').innerText = '2025年8月4日 23:59';
+
+    // 2. 處理表單提交
+    const form = document.getElementById('phishing-form');
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const submitButton = document.getElementById('submit-button');
+        submitButton.innerText = '資料驗證中，請稍候...';
+        submitButton.disabled = true;
+        
+        // 記錄「資料提交」事件
+        fetch(`${SCRIPT_URL}?userId=${userId}&eventType=Data_Submitted&userAgent=${userAgent}`);
+
+        // 顯示成功畫面
+        setTimeout(() => {
+            document.getElementById('main-container').innerHTML = `
+                <div style="text-align:center; padding: 40px 0;">
+                    <svg style="color: #28a745; width: 80px; height: 80px; margin-bottom: 20px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg>
+                    <div style="color: #28a745; font-family: 'Noto Serif TC', serif; font-size: 24px; font-weight: 700;">資料已成功提交！</div>
+                    <p style="font-size: 16px; color: #555; margin-top: 10px;">您的補領資格正在進行最終審核。<br>結果將於 3-5 個工作天內，以簡訊方式通知。</p>
+                </div>
+            `;
+        }, 2000); 
+    });
+</script>
+
+</body>
+</html>

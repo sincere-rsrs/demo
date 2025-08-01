@@ -1,11 +1,13 @@
 name: Deploy to GitHub Pages
 
-# 當推送到 main 分支時觸發此工作流程
+# 設定觸發條件
 on:
+  # 1. 當推送到 main 分支時觸發
   push:
     branches:
       - main
-      
+  
+  # 2. 允許從 GitHub UI 手動觸發此工作流程
   workflow_dispatch:
 
 # 允許此工作流程寫入 GitHub Pages 的權限
@@ -27,27 +29,20 @@ jobs:
       - name: Replace placeholder with secret URL
         run: |
           sed -i "s|%%APPS_SCRIPT_URL%%|${{ secrets.APPS_SCRIPT_URL }}|g" index.html
-        # sed 的 -i 參數是直接修改檔案。
-        # s|...|...|g 是替換語法，我們用 | 作為分隔符以避免 URL 中的 / 造成衝突。
 
       # 步驟 3: 設定 GitHub Pages
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      # 步驟 4: 將包含真實 URL 的檔案打包成一個 artifact
-      - name: Build with Jekyll
-        uses: actions/jekyll-build-pages@v1
-        with:
-          source: ./
-          destination: ./_site
-      
-      # 步驟 5: 上傳 artifact 以便部署
+      # 步驟 4: 上傳修改後的網站檔案成品 (Artifact)
+      # 這是關鍵的一步，直接將目前資料夾的內容打包
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./_site
+          # 上傳整個倉庫的根目錄
+          path: '.'
 
-      # 步驟 6: 部署到 GitHub Pages
+      # 步驟 5: 從剛剛上傳的成品部署到 GitHub Pages
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

